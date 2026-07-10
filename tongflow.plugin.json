@@ -1,4 +1,9 @@
 {
+    "plugin": {
+        "name": "Scrapling",
+        "description": "URL-to-text with Scrapling's stealth browser — succeeds on JS-heavy, bot-protected pages, output as markdown.",
+        "icon": "/plugins/tongflow-modal-scrapling.svg"
+    },
     "env": [
         {
             "key": "MODAL_TOKEN_ID",

@@ -48,7 +48,7 @@ image = (
     .pip_install(
         f"scrapling[fetchers]=={SCRAPLING_VERSION}",
         "markdownify>=1.2.0",
-        "tongflow==0.2.13", "fastapi[standard]",
+        "tongflow==0.2.16", "fastapi[standard]",
     )
     # Bake the stealth browser + its system deps into the image layer.
     # `scrapling` is a pip console script (PATH), not a runnable module.

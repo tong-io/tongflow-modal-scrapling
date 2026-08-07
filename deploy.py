@@ -111,7 +111,7 @@ def _scrape_core(url: str | None) -> dict[str, Any]:
 
 
 @deploy
-@app.cls(cpu=2.0, memory=4096, timeout=600, secrets=[secrets], scaledown_window=120)
+@app.cls(cpu=2.0, memory=4096, timeout=600, secrets=[secrets], scaledown_window=2)
 class Inference:
     @modal.method()
     @node_slot(NodeSlots.LINK)

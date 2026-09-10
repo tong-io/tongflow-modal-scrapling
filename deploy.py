@@ -22,7 +22,32 @@ import modal
 from tongflow import deploy
 from tongflow.models.link import LinkInput, LinkOutput
 from tongflow.node_slots import NodeSlots
-from tongflow.slots import node_slot
+from tongflow.slots import current_params, node_slot
+
+
+def _adv(name: str, default):
+    """Advanced-section override (``TONGFLOW_SLOT_PARAMS``) or the plugin default."""
+    v = current_params().get(name)
+    if v is None:
+        return default
+    if isinstance(default, bool):
+        return bool(v)
+    if isinstance(default, int):
+        return int(v)
+    if isinstance(default, float):
+        return float(v)
+    return v
+
+# Per-run knobs offered under the node's collapsed "Advanced" section.
+# Pure literal (the platform scanner reads it by AST, never imports this
+# module). Values reach the handlers via current_params(); an untouched
+# control is absent there and falls back to the plugin default.
+TONGFLOW_SLOT_PARAMS = {
+    "link": {
+        "solve_cloudflare": {"type": "boolean", "default": True, "label": "Solve Cloudflare challenges"},
+        "block_ads": {"type": "boolean", "default": True, "label": "Block ads / trackers"},
+    },
+}
 
 # Pin Scrapling so the baked-in browser matches the library. Browser binaries
 # are installed into the image at build time (`scrapling install`), so there is
@@ -48,7 +73,7 @@ image = (
     .pip_install(
         f"scrapling[fetchers]=={SCRAPLING_VERSION}",
         "markdownify>=1.2.0",
-        "tongflow==0.2.21", "fastapi[standard]",
+        "tongflow==0.3.3", "fastapi[standard]",
     )
     # Bake the stealth browser + its system deps into the image layer.
     # `scrapling` is a pip console script (PATH), not a runnable module.
@@ -68,10 +93,10 @@ def _scrape_to_text(url: str) -> dict[str, Any]:
     page = StealthyFetcher.fetch(
         url,
         headless=True,
-        solve_cloudflare=SOLVE_CLOUDFLARE,
+        solve_cloudflare=_adv("solve_cloudflare", SOLVE_CLOUDFLARE),
         network_idle=NETWORK_IDLE,
         disable_resources=DISABLE_RESOURCES,
-        block_ads=BLOCK_ADS,
+        block_ads=_adv("block_ads", BLOCK_ADS),
         timeout=FETCH_TIMEOUT_MS,
     )
 
